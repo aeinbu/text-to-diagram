@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-	entry: './src/index.ts',
+	entry: './src/index.js',
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: 'text-to-diagram',
@@ -11,8 +11,12 @@ module.exports = {
 	module: {
 		rules: [
 			{
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				use: "babel-loader"
+			}, {
 				test: /\.tsx?$/,
-				use: 'ts-loader',
+				use: ['ts-loader', "babel-loader"],
 				exclude: /node_modules/,
 			}, {
 				test: /\.css$/i,
@@ -21,7 +25,7 @@ module.exports = {
 		],
 	},
 	resolve: {
-		extensions: ['.tsx', '.ts', '.js'],
+		extensions: ['.tsx', '.ts', 'jsx', '.js'],
 	}, output: {
 		filename: 'main.js',
 		path: path.resolve(__dirname, 'dist'),

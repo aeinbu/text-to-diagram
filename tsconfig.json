@@ -6,7 +6,11 @@
 		"module": "commonjs",
 		"target": "es5",
 		"jsx": "react",
+		"jsxFactory": "createElement",
+		"jsxFragmentFactory": "createElement",
 		"allowJs": true,
 		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
 	}
 }

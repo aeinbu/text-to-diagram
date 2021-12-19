@@ -21,11 +21,16 @@
   },
   "homepage": "https://github.com/aeinbu/text-to-diagram#readme",
   "dependencies": {
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.6.0"
+    "@aeinbu/groupby": "^1.1.0",
+    "tsx-create-element": "^2.2.9"
   },
   "devDependencies": {
+    "@babel/core": "^7.16.5",
+    "@babel/plugin-transform-react-jsx": "^7.16.5",
+    "babel-loader": "^8.2.3",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0",
     "css-loader": "^6.5.1",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
