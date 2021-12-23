@@ -1,24 +1,23 @@
 import { createElement, StatelessProps } from "tsx-create-element";
 import { CreateDiagram as CreateSequenceDiagram } from "./SequenceDiagram/CreateDiagram"
 import { CreatePlayground } from "./Playground/CreatePlayground"
-import sequenceDiagramData from "./SequenceDiagram/sample.json"
+import {parse} from "./SequenceDiagram/parse"
 
 const incomingText = `
-client (first) -> server [top]
+client (first) -> server
 server -> remote site [first request]
-server -> logger (last) [third]
+server -> logger (last)
 remote site -> server
 server -> remote site [second request]
 remote site -> server
-server -> other remote site [fourth]
+server -> other remote site [third request]
 other remote site -> server
 server -> client
 server -> logger
-dill -> dall [hallo]
 client -> remote site
 `
 
 document.body.appendChild(<>
 	<h1>Sequence diagram</h1>
-	<CreateSequenceDiagram data={sequenceDiagramData} />
+	<CreateSequenceDiagram data={parse(incomingText)} />
 </>)
