@@ -1,9 +1,8 @@
 import { distinct } from '@aeinbu/groupby';
-import { createElement, StatelessProps } from 'tsx-create-element';
 
 export const CreateDiagram = ({ data }) => {
 	// TODO: order endpoints in the specified order - not implemented yet
-	const endpoints = data
+	const endpointNames = data
 		.flatMap(item => [item.from.name, item.to.name])
 		.reduce(distinct(item => item.name), [])
 
@@ -25,24 +24,24 @@ export const CreateDiagram = ({ data }) => {
 		arrowOffset
 	}
 
-	return <svg
-		width={endpointSpacing * endpoints.length}
-		height={arrowSpacing * arrows.length + legendHeight * 2}
+	return `<svg
+		width="${endpointSpacing * endpointNames.length}"
+		height="${arrowSpacing * arrows.length + legendHeight * 2}"
 		style="border: thin solid lightgrey;"
 	>
-		<Defs data={undefined} />
-		{endpoints.map((endpoint, ix) => <Endpoint key={ix} name={endpoint} arrowCount={arrows.length} index={ix} layoutParameters={layoutParameters} />)}
-		{arrows.map((arrow, ix) => <Arrow key={ix} arrow={arrow} endpoints={endpoints} layoutParameters={layoutParameters} index={ix}/>)}
-	</svg>
+		${Defs()}
+		${endpointNames.map((endpoint, ix) => Endpoint({name: endpoint, arrowCount: arrows.length, index: ix, layoutParameters})).join('\n')}
+		${arrows.map((arrow, ix) => Arrow({arrow, endpoints: endpointNames, layoutParameters, index: ix})).join('\n')}
+	</svg>`
 }
 
 
-export const Defs = (props = {}) => {
-	return <defs>
+export const Defs = () => {
+	return `<defs>
 		<marker id="arrow" markerWidth="30" markerHeight="20" refX="9" refY="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20">
 			<path d="M0,0 L0,6 L9,3 z" fill="black" />
 		</marker>
-	</defs>
+	</defs>`
 }
 
 
@@ -54,26 +53,26 @@ export const Endpoint = ({ name, arrowCount, layoutParameters, index }) => {
 	const width = endpointSpacing
 	const viewbox = `${-width / 2} 0 ${width} ${height}`
 
-	return <svg
-		width={width} height={height}
-		viewBox={viewbox}
-		x={index * endpointSpacing} y={0}
+	return `<svg
+		width="${width}" height="${height}"
+		viewBox="${viewbox}"
+		x="${index * endpointSpacing}" y="${0}"
 	>
 		<text
-			x={0}
-			y={legendHeight / 2}
-			text-anchor="middle" dominant-baseline="middle">{name}</text>
+			x="${0}"
+			y="${legendHeight / 2}"
+			text-anchor="middle" dominant-baseline="middle">${name}</text>
 
 		<text
-			x={0}
-			y={lineHeight + legendHeight + legendHeight / 2}
-			text-anchor="middle" dominant-baseline="middle">{name}</text>
+			x="${0}"
+			y="${lineHeight + legendHeight + legendHeight / 2}"
+			text-anchor="middle" dominant-baseline="middle">${name}</text>
 
 		<line
-			x1={0} y1={legendHeight}
-			x2={0} y2={legendHeight + lineHeight}
+			x1="${0}" y1="${legendHeight}"
+			x2="${0}" y2="${legendHeight + lineHeight}"
 			stroke="purple" />
-	</svg>
+	</svg>`
 }
 
 
@@ -83,20 +82,20 @@ export const Arrow = ({ arrow, endpoints, layoutParameters, index }) => {
 	const width = endpointSpacing * endpoints.length
 	const viewbox = `0 ${-(height+annotationHeight)/2} ${width} ${arrowSpacing}`
 
-	return <svg
-		width={width} height={arrowSpacing}
-		viewBox={viewbox}
-		x={0} y={index * arrowSpacing + legendHeight}
+	return `<svg
+		width="${width}" height="${arrowSpacing}"
+		viewBox="${viewbox}"
+		x="${0}" y="${index * arrowSpacing + legendHeight}"
 	>
 		<line
-			x1={endpoints.indexOf(arrow.from.name) * endpointSpacing + endpointOffset} y1={0}
-			x2={endpoints.indexOf(arrow.to.name) * endpointSpacing + endpointOffset} y2={0}
+			x1="${endpoints.indexOf(arrow.from.name) * endpointSpacing + endpointOffset}" y1="${0}"
+			x2="${endpoints.indexOf(arrow.to.name) * endpointSpacing + endpointOffset}" y2="${0}"
 			stroke="black" stroke-width="1" marker-end="url(#arrow)" />
 
-		{arrow.annotation !== undefined && <text
-			x={(endpoints.indexOf(arrow.from.name) + endpoints.indexOf(arrow.to.name)) / 2 * endpointSpacing + endpointSpacing / 2}
-			y={-annotationHeight / 2}
-			text-anchor="middle" dominant-baseline="middle">{arrow.annotation}</text>}
+		${arrow.annotation !== undefined && `<text
+			x="${(endpoints.indexOf(arrow.from.name) + endpoints.indexOf(arrow.to.name)) / 2 * endpointSpacing + endpointSpacing / 2}"
+			y="${-annotationHeight / 2}"
+			text-anchor="middle" dominant-baseline="middle">${arrow.annotation}</text>`}
 
-	</svg>
+	</svg>`
 }

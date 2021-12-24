@@ -1,7 +1,5 @@
-import { createElement, StatelessProps } from "tsx-create-element";
 import { CreateDiagram as CreateSequenceDiagram } from "./SequenceDiagram/CreateDiagram"
-import { CreatePlayground } from "./Playground/CreatePlayground"
-import {parse} from "./SequenceDiagram/parse"
+import { parse } from "./SequenceDiagram/parse"
 
 const incomingText = `
 client (first) -> server
@@ -17,7 +15,7 @@ server -> logger
 client -> remote site
 `
 
-document.body.appendChild(<>
-	<h1>Sequence diagram</h1>
-	<CreateSequenceDiagram data={parse(incomingText)} />
-</>)
+document.body.innerHTML = `
+	<h1>Sequence diagram without jsx</h1>
+	${CreateSequenceDiagram({ data: parse(incomingText) })}
+`

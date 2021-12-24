@@ -11,12 +11,11 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.jsx?$/,
-				exclude: /node_modules/,
-				use: "babel-loader"
+				test: /\.js?$/,
+				exclude: /node_modules/
 			}, {
-				test: /\.tsx?$/,
-				use: ['ts-loader', "babel-loader"],
+				test: /\.ts?$/,
+				use: ['ts-loader'],
 				exclude: /node_modules/,
 			}, {
 				test: /\.css$/i,
@@ -25,7 +24,7 @@ module.exports = {
 		],
 	},
 	resolve: {
-		extensions: ['.tsx', '.ts', 'jsx', '.js'],
+		extensions: ['.ts', '.js'],
 	}, output: {
 		filename: 'main.js',
 		path: path.resolve(__dirname, 'dist'),
