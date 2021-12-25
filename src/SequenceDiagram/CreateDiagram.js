@@ -3,12 +3,11 @@ import { createElement, StatelessProps } from 'tsx-create-element';
 
 export const CreateDiagram = ({ data }) => {
 	// TODO: order endpoints in the specified order - not implemented yet
-	const endpoints = data
+	const endpointNames = data
 		.flatMap(item => [item.from.name, item.to.name])
 		.reduce(distinct(item => item.name), [])
 
 	const arrows = data
-
 
 	const legendHeight = 30
 	const annotationHeight = 20
@@ -26,23 +25,13 @@ export const CreateDiagram = ({ data }) => {
 	}
 
 	return <svg
-		width={endpointSpacing * endpoints.length}
+		width={endpointSpacing * endpointNames.length}
 		height={arrowSpacing * arrows.length + legendHeight * 2}
 		style="border: thin solid lightgrey;"
 	>
-		<Defs data={undefined} />
-		{endpoints.map((endpoint, ix) => <Endpoint key={ix} name={endpoint} arrowCount={arrows.length} index={ix} layoutParameters={layoutParameters} />)}
-		{arrows.map((arrow, ix) => <Arrow key={ix} arrow={arrow} endpoints={endpoints} layoutParameters={layoutParameters} index={ix}/>)}
+		{endpointNames.map((endpoint, ix) => <Endpoint key={ix} name={endpoint} arrowCount={arrows.length} index={ix} layoutParameters={layoutParameters} />)}
+		{arrows.map((arrow, ix) => <Arrow key={ix} arrow={arrow} endpoints={endpointNames} layoutParameters={layoutParameters} index={ix} />)}
 	</svg>
-}
-
-
-export const Defs = (props = {}) => {
-	return <defs>
-		<marker id="arrow" markerWidth="30" markerHeight="20" refX="9" refY="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20">
-			<path d="M0,0 L0,6 L9,3 z" fill="black" />
-		</marker>
-	</defs>
 }
 
 
@@ -81,17 +70,35 @@ export const Arrow = ({ arrow, endpoints, layoutParameters, index }) => {
 	const { legendHeight, annotationHeight, endpointSpacing, endpointOffset, arrowSpacing, arrowOffset } = layoutParameters
 	const height = arrowSpacing
 	const width = endpointSpacing * endpoints.length
-	const viewbox = `0 ${-(height+annotationHeight)/2} ${width} ${arrowSpacing}`
+	const viewbox = `0 ${-(height + annotationHeight) / 2} ${width} ${arrowSpacing}`
+
+	const startLine = "h10 "
+	const endLine = "h10 "
+	const segment = "h100 "
+	const bridge = "c0,-14 20,-14 20,0 "
+	const rightArrow = "h10 l-14,-10 m14,10 l-14,10 m0,0"
+	const leftArrow = "l14,10 m0,-20 l-14,10 h10 m0,0"
+	const loopback = startLine + "h40 v20 h-40 " + leftArrow
+	
+	const fromIx = endpoints.indexOf(arrow.from.name)
+	const toIx = endpoints.indexOf(arrow.to.name)
+	const segmentCount = fromIx - toIx
+	const intermediateSegments = [...Array(Math.abs(segmentCount))].map(() => segment).join(bridge)
+
+	const startPoint = `M${fromIx <= toIx ? fromIx*120+60 : toIx*120+60},0 `
+	const arrowPath = segmentCount < 0
+		? [startPoint, startLine, intermediateSegments, rightArrow]
+		: segmentCount > 0
+			? [startPoint, leftArrow, intermediateSegments, endLine]
+			: [startPoint, loopback]
 
 	return <svg
 		width={width} height={arrowSpacing}
 		viewBox={viewbox}
 		x={0} y={index * arrowSpacing + legendHeight}
 	>
-		<line
-			x1={endpoints.indexOf(arrow.from.name) * endpointSpacing + endpointOffset} y1={0}
-			x2={endpoints.indexOf(arrow.to.name) * endpointSpacing + endpointOffset} y2={0}
-			stroke="black" stroke-width="1" marker-end="url(#arrow)" />
+
+		<path d={arrowPath.join(" ")} stroke="blue" fill="transparent" />
 
 		{arrow.annotation !== undefined && <text
 			x={(endpoints.indexOf(arrow.from.name) + endpoints.indexOf(arrow.to.name)) / 2 * endpointSpacing + endpointSpacing / 2}
