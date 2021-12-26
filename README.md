@@ -6,17 +6,14 @@ Lighweight diagram viewer for a textual diagram modeling language.
 ## Sequence diagrams
 Suggested format:
 ```
-client (first) -> server
-server -> remote site [first request]
-server -> logger (last)
-remote site -> server
-server -> remote site [second request]
-remote site -> server
-server -> other remote site
-other remote site -> server
+client -> server
+server -> database [fetch data]
+database (end) -> server
+server -> logger (always)
+server -> database [fetch data]
+database (end) -> server
+server -> logger (always)
 server -> client
-server -> logger
-client -> remote site
 ```
 
 ## Relational diagrams (Database)

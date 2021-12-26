@@ -1,15 +1,19 @@
-const regex = /^(?<from>.*?)( \((?<fromOrder>.*?)\))? -> (?<to>.*?)( \((?<toOrder>.*?)\))?( \[(?<annotation>.*)\])?$/gm
+const regex = /^(?<from>.*?)( \((?<fromStop>.*?)\))? -> (?<to>.*?)( \((?<toStop>.*?)\))?( \[(?<annotation>.*)\])?$/gm
 
 export const parse = (incomingText) => [...incomingText.matchAll(regex)]
 	.map(x => x.groups)
 	.map(x => ({
 		from: {
 			name: x.from,
-			order: x.fromOrder
+			canBeStart: true,
+			mustBeStop: x.fromStop === "end",
+			isAlwaysActive: x.fromStop === "always"
 		},
 		to: {
 			name: x.to,
-			order: x.toOrder
+			canBeStart: true,
+			mustBeStop: x.toStop === "end",
+			isAlwaysActive: x.toStop === "always"
 		},
 		annotation: x.annotation
 	}));
