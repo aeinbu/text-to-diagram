@@ -45,41 +45,43 @@ export const Endpoint = ({ endpointName, arrows, layoutParameters, index }) => {
 
 	const linePartDisplayStates = calculateLinePartDisplayStates(arrows, endpointName)
 
-	return <svg
-		width={width} height={height}
-		viewBox={viewbox}
-		x={index * endpointSpacing} y={0}
-	>
-		<text
-			x={0}
-			y={legendHeight / 2}
-			text-anchor="middle" dominant-baseline="middle">{endpointName}</text>
+	return endpointName === ""
+		? <></>
+		: <svg
+			width={width} height={height}
+			viewBox={viewbox}
+			x={index * endpointSpacing} y={0}
+		>
+			<text
+				x={0}
+				y={legendHeight / 2}
+				text-anchor="middle" dominant-baseline="middle">{endpointName}</text>
 
-		<text
-			x={0}
-			y={lineHeight + legendHeight + legendHeight / 2}
-			text-anchor="middle" dominant-baseline="middle">{endpointName}</text>
+			<text
+				x={0}
+				y={lineHeight + legendHeight + legendHeight / 2}
+				text-anchor="middle" dominant-baseline="middle">{endpointName}</text>
 
-		<line
-			x1={0} y1={legendHeight}
-			x2={0} y2={legendHeight + lineHeight}
-			stroke="gray" stroke-width="1" />
+			<line
+				x1={0} y1={legendHeight}
+				x2={0} y2={legendHeight + lineHeight}
+				stroke="gray" stroke-width="1" />
 
-		{linePartDisplayStates.map((state, ix) => state.isActive && <line
-			x1={0} y1={arrowSpacing * ix + legendHeight + (state.startsActive ? 0: 22)} // 0 is top
-			x2={0} y2={arrowSpacing * ix + legendHeight + (state.endsActive ? 40:  37)}  // 40 is bottom
-			stroke="gray" stroke-width="6" />
-		)}
-	</svg>
+			{linePartDisplayStates.map((state, ix) => state.isActive && <line
+				x1={0} y1={arrowSpacing * ix + legendHeight + (state.startsActive ? 0 : 22)} // 0 is top
+				x2={0} y2={arrowSpacing * ix + legendHeight + (state.endsActive ? 40 : 37)}  // 40 is bottom
+				stroke="gray" stroke-width="6" />
+			)}
+		</svg>
 }
 
 
-const createDisplayState = (currentState, previousDisplayState = {endsActive: false}) => ({
-		startsActive: previousDisplayState.endsActive,
-		endsActive: (previousDisplayState.endsActive || currentState.canBeStart) && !currentState.mustBeStop,
-		isInvolved: currentState.canBeStart,
-		isActive: currentState.canBeStart || previousDisplayState.endsActive
-	})
+const createDisplayState = (currentState, previousDisplayState = { endsActive: false }) => ({
+	startsActive: previousDisplayState.endsActive,
+	endsActive: (previousDisplayState.endsActive || currentState.canBeStart) && !currentState.mustBeStop,
+	isInvolved: currentState.canBeStart,
+	isActive: currentState.canBeStart || previousDisplayState.endsActive
+})
 
 
 const calculateLinePartDisplayStates = (arrows, endpointName) => {
@@ -90,7 +92,7 @@ const calculateLinePartDisplayStates = (arrows, endpointName) => {
 			isAlwaysActive: (current.from.name === endpointName && current.from.isAlwaysActive) || (current.to.name === endpointName && current.to.isAlwaysActive),
 		}))
 
-	if(x.find(item => item.isAlwaysActive)){
+	if (x.find(item => item.isAlwaysActive)) {
 		return [...Array(arrows.length)].map(() => ({
 			startsActive: true,
 			endsActive: true,
@@ -108,7 +110,7 @@ const calculateLinePartDisplayStates = (arrows, endpointName) => {
 
 	// reverse run
 	for (let i = x.length - 1; i >= 0; i--) {
-		const nextState = linePartDisplayStates[i + 1] ?? {isActive: false}
+		const nextState = linePartDisplayStates[i + 1] ?? { isActive: false }
 		if (!nextState.isActive && !linePartDisplayStates[i].isInvolved) {
 			linePartDisplayStates[i].isActive = false
 		} else {
@@ -121,13 +123,15 @@ const calculateLinePartDisplayStates = (arrows, endpointName) => {
 }
 
 
-export const Arrow = ({ arrow, endpoints: endpointNamess, layoutParameters, index }) => {
+export const Arrow = ({ arrow, endpoints: endpointNames, layoutParameters, index }) => {
 	const { legendHeight, annotationHeight, endpointSpacing, endpointOffset, arrowSpacing, arrowOffset } = layoutParameters
 	const height = arrowSpacing
-	const width = endpointSpacing * endpointNamess.length
+	const width = endpointSpacing * endpointNames.length
 	const viewbox = `0 ${-(height + annotationHeight) / 2} ${width} ${arrowSpacing}`
 
-	const arrowPath = createArowPath(endpointNamess.indexOf(arrow.from.name), endpointNamess.indexOf(arrow.to.name))
+	const arrowPath = createArrowPath(endpointNames.indexOf(arrow.from.name), endpointNames.indexOf(arrow.to.name))
+
+	const startPointForBullet = `M${endpointNames.indexOf("") * 120 + 60},0 `
 
 	return <svg
 		width={width} height={arrowSpacing}
@@ -136,8 +140,10 @@ export const Arrow = ({ arrow, endpoints: endpointNamess, layoutParameters, inde
 	>
 		<path d={arrowPath} stroke="blue" fill="transparent" />
 
+		{(arrow.from.name === "" || arrow.to.name === "") && <path d={`${startPointForBullet} m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 z`} fill="black" />}
+
 		{arrow.annotation !== undefined && <text
-			x={(endpointNamess.indexOf(arrow.from.name) + endpointNamess.indexOf(arrow.to.name)) / 2 * endpointSpacing + endpointSpacing / 2}
+			x={(endpointNames.indexOf(arrow.from.name) + endpointNames.indexOf(arrow.to.name)) / 2 * endpointSpacing + endpointSpacing / 2}
 			y={-annotationHeight / 2}
 			text-anchor="middle" dominant-baseline="middle">{arrow.annotation}</text>}
 
@@ -145,7 +151,7 @@ export const Arrow = ({ arrow, endpoints: endpointNamess, layoutParameters, inde
 }
 
 
-const createArowPath = (fromIx, toIx) => {
+const createArrowPath = (fromIx, toIx) => {
 	const startLine = "m3,0 h7"
 	const endLine = "h7 m3,0"
 	const segment = "h100"
