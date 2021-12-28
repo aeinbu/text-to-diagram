@@ -3,14 +3,14 @@ import { CreateDiagram as CreateSequenceDiagram } from "./SequenceDiagram/Create
 import { parse } from "./SequenceDiagram/parse"
 
 const incomingText = `
- -> server [request]
+-> server [request]
 server -> database [fetch data]
 database (end) -> server
 server -> logger (always)
 server -> database [fetch data]
 database (end) -> server
 server -> logger
-server ->  [response]
+server -> [response]
 `
 console.log("---", parse(incomingText))
 

@@ -1,4 +1,4 @@
-# Text-to-diagrams
+# Text-to-diagram
 
 Lighweight diagram viewer for a textual diagram modeling language.
 - since diagram sources are stored as text, they are git friendly

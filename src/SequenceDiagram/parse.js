@@ -1,4 +1,4 @@
-const regex = /^(?<from>.*?)( \((?<fromStop>.*?)\))? -> (?<to>.*?)( \((?<toStop>.*?)\))?( \[(?<annotation>.*)\])?$/gm
+const regex = /^(?<from>.*?)( ?\((?<fromStop>.*?)\))? ?-> ?(?<to>.*?)( ?\((?<toStop>.*?)\))?( ?\[(?<annotation>.*)\])?$/gm
 
 export const parse = (incomingText) => [...incomingText.matchAll(regex)]
 	.map(x => x.groups)
