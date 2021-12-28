@@ -129,7 +129,11 @@ export const Arrow = ({ arrow, endpoints: endpointNames, layoutParameters, index
 	const width = endpointSpacing * endpointNames.length
 	const viewbox = `0 ${-(height + annotationHeight) / 2} ${width} ${arrowSpacing}`
 
-	const arrowPath = createArrowPath(endpointNames.indexOf(arrow.from.name), endpointNames.indexOf(arrow.to.name))
+	const fromIx = endpointNames.indexOf(arrow.from.name)
+	const toIx = endpointNames.indexOf(arrow.to.name)
+	const arrowPath = createArrowPath(fromIx, toIx)
+
+	const segmentCount = fromIx - toIx
 
 	const startPointForBullet = `M${endpointNames.indexOf("") * 120 + 60},0 `
 
@@ -142,10 +146,16 @@ export const Arrow = ({ arrow, endpoints: endpointNames, layoutParameters, index
 
 		{(arrow.from.name === "" || arrow.to.name === "") && <path d={`${startPointForBullet} m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 z`} fill="black" />}
 
-		{arrow.annotation !== undefined && <text
+		{(arrow.annotation !== undefined) && segmentCount !== 0
+		? <text
 			x={(endpointNames.indexOf(arrow.from.name) + endpointNames.indexOf(arrow.to.name)) / 2 * endpointSpacing + endpointSpacing / 2}
 			y={-annotationHeight / 2}
-			text-anchor="middle" dominant-baseline="middle">{arrow.annotation}</text>}
+			text-anchor="middle" dominant-baseline="middle">{arrow.annotation}</text>
+		: <text
+			x={endpointNames.indexOf(arrow.from.name) * endpointSpacing + 110}
+			y={-annotationHeight / 2 + 1}
+			text-anchor="left" dominant-baseline="middle">{arrow.annotation}</text>
+	}
 
 	</svg>
 }
@@ -161,14 +171,26 @@ const createArrowPath = (fromIx, toIx) => {
 	const loopback = startLine + " h40 v20 h-40 " + leftArrow
 
 	const segmentCount = fromIx - toIx
-	const intermediateSegments = [...Array(Math.abs(segmentCount))].map(() => segment).join(bridge)
+	if (segmentCount !== 0) {
+		const intermediateSegments = [...Array(Math.abs(segmentCount))].map(() => segment).join(bridge)
 
-	const startPoint = `M${fromIx <= toIx ? fromIx * 120 + 60 : toIx * 120 + 60},0 `
-	const pathParts = segmentCount < 0
-		? [startPoint, startLine, intermediateSegments, rightArrow]
-		: segmentCount > 0
-			? [startPoint, leftArrow, intermediateSegments, endLine]
-			: [startPoint, loopback]
+		const startPoint = `M${fromIx <= toIx ? fromIx * 120 + 60 : toIx * 120 + 60},0 `
+		const pathParts = segmentCount < 0
+			? [startPoint, startLine, intermediateSegments, rightArrow]
+			: segmentCount > 0
+				? [startPoint, leftArrow, intermediateSegments, endLine]
+				: [startPoint, loopback]
 
-	return pathParts.join(" ")
+		return pathParts.join(" ")
+	}
+
+	return [
+		`M${fromIx * 120 + 60},0 `,
+		"m3,-20",
+		"h30",
+		"c14,0 14,20 0,20",
+		"h-30",
+		"m-3,0",
+		leftArrow
+	].join(" ")
 }
